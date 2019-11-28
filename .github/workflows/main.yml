@@ -9,7 +9,7 @@ jobs:
         env:
             COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         strategy:
-            max-parallel: 4
+            fail-fast: false
             matrix:
                 os: [windows-latest, macOS-10.14, ubuntu-18.04]
                 python: ["3.6", "3.7", "3.8"]
