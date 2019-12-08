@@ -11,8 +11,6 @@ from micropy.project import modules
 
 @pytest.fixture
 def get_module(tmp_path):
-    tmp_reqs = tmp_path / 'requirements.txt'
-    tmp_devreqs = tmp_path / 'dev-requirements.txt'
 
     def _get_module(names, mp, **kwargs):
         _templates = list(modules.TemplatesModule.TEMPLATES.keys())
@@ -107,7 +105,6 @@ def test_project(micropy_stubs, mock_cwd, tmp_path, get_module):
         for m in mods:
             proj.add(*m[0], **m[1])
         yield proj, mp
-        shutil.rmtree(proj_path)
     return _test_project
 
 
@@ -252,16 +249,15 @@ class TestPackagesModule:
         return proj
 
     def test_add_package(self, test_project, mock_pkg, tmp_path):
-        proj, mp = next(test_project('reqs', path=(tmp_path / 'nicenewpath')))
+        proj, mp = list(test_project('reqs'))[-1]
         proj.create()
-        proj.add_package('somepkg>=7')
-        print(proj.config._config)
-        assert proj.config.get('packages/somepkg') == '>=7'
+        proj.add_package('somepkg==7')
+        assert proj.config.get('packages/somepkg') == '==7'
         assert len(list((proj.data_path / proj.name).iterdir())) > 0
         # Shouldnt allow duplicate pkgs
         res = proj.add_package('somepkg')
         assert res is None
-        assert proj.config.get('packages/somepkg') == '>=7'
+        assert proj.config.get('packages/somepkg') == '==7'
         # Add from path
         proj.add_package(f"-e {mock_pkg}", name="MockPack")
         assert proj.config.get('packages/mockpack') == f'-e {mock_pkg}'
